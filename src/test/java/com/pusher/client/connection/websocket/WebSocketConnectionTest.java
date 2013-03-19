@@ -26,7 +26,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.impl.ChannelManager;
 import com.pusher.client.connection.ConnectionEventListener;
 import com.pusher.client.connection.ConnectionState;
@@ -52,12 +51,31 @@ public class WebSocketConnectionTest {
     public void setUp() throws URISyntaxException, SSLException {
 	
 	PowerMockito.mockStatic(Factory.class);
-	when(Factory.getChannelManager(any(InternalConnection.class), any(PusherOptions.class))).thenReturn(mockChannelManager);
+	when(Factory.getChannelManager()).thenReturn(mockChannelManager);
 	when(Factory.newWebSocketClientWrapper(any(URI.class), any(WebSocketConnection.class))).thenReturn(mockUnderlyingConnection);
 	when(Factory.getEventQueue()).thenReturn(new InstantExecutor());
 	
 	this.connection = new WebSocketConnection(API_KEY, false);
 	this.connection.bind(ConnectionState.ALL, mockEventListener);
+    }
+    
+    @Test
+    public void testUnbindingWhenNotAlreadyBoundReturnsFalse() throws URISyntaxException {
+    	ConnectionEventListener listener = PowerMockito.mock(ConnectionEventListener.class);
+    	WebSocketConnection connection = new WebSocketConnection(API_KEY, false);
+    	boolean unbound = connection.unbind(ConnectionState.ALL, listener);
+    	assertEquals(false, unbound);
+    }
+    
+    @Test
+    public void testUnbindingWhenBoundReturnsTrue() throws URISyntaxException {
+    	ConnectionEventListener listener = PowerMockito.mock(ConnectionEventListener.class);
+    	WebSocketConnection connection = new WebSocketConnection(API_KEY, false);
+    	
+    	connection.bind(ConnectionState.ALL, listener);
+    	
+    	boolean unbound = connection.unbind(ConnectionState.ALL, listener);
+    	assertEquals(true, unbound);
     }
     
     @Test
@@ -139,15 +157,6 @@ public class WebSocketConnectionTest {
 	connection.onMessage("{\"event\":\"pusher:connection_established\",\"data\":\"{\\\"socket_id\\\":\\\"21112.816204\\\"}\"}");
 	
 	assertEquals("21112.816204", connection.getSocketId());
-    }
-    
-    @Test
-    public void testReceivePusherConnectionEstablishedMessageWhenAlreadyConnectedIsIgnored() {
-	connection.connect();
-	connection.onMessage("{\"event\":\"pusher:connection_established\",\"data\":\"{\\\"socket_id\\\":\\\"21112.816204\\\"}\"}");
-	connection.onMessage("{\"event\":\"pusher:connection_established\",\"data\":\"{\\\"socket_id\\\":\\\"21112.816204\\\"}\"}");
-	
-	verify(mockEventListener, times(2)).onConnectionStateChange(any(ConnectionStateChange.class));
     }
     
     @Test

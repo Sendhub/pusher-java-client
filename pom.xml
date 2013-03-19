@@ -4,7 +4,7 @@
 	<groupId>com.pusher</groupId>
 	<artifactId>pusher-java-client</artifactId>
 	<name>Pusher Java Client Library</name>
-	<version>0.0.1</version>
+	<version>0.0.1-SNAPSHOT</version>
 
 	<description>
 		This is a Java client library for Pusher, targeted at core Java and Android.
@@ -12,14 +12,15 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
+    	<github.global.server>github</github.global.server>
 	</properties>
 
-	<!-- TODO: when a license has been selected -->
 	<licenses>
 		<license>
-			<name>myname</name>
-			<url>http://www.myname/licenses/LICENSE.txt</url>
-			<distribution>http://mybuildserver:8080/my-repo/</distribution>
+			<name>MIT</name>
+			<url>https://raw.github.com/leggetter/pusher-java-client/master/LICENCE.txt</url>
+			<distribution>https://raw.github.com/leggetter/pusher-java-client/mvn-repo/</distribution>
 		</license>
 	</licenses>
 
@@ -50,6 +51,51 @@
 		</testResources>
 
 		<plugins>
+		    
+		  <plugin>
+            <groupId>com.github.github</groupId>
+            <artifactId>site-maven-plugin</artifactId>
+            <version>0.7</version>
+            <configuration>
+				<server>github</server>
+				<repositoryName>pusher-java-client</repositoryName>      <!-- github repo name -->
+                <repositoryOwner>leggetter</repositoryOwner>    <!-- github username  -->
+                <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
+			</configuration>
+            <executions>
+                
+              <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+              <execution>
+                <id>mvn-repo</id>
+                <configuration>
+                	<message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
+                	<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory> <!-- matches distribution management repository url above -->
+                	<branch>refs/heads/mvn-repo</branch>                       <!-- remote branch name -->
+                	<includes><include>**/*</include></includes>
+            	</configuration>
+                <goals>
+                  <goal>site</goal>
+                </goals>
+                <phase>deploy</phase>
+              </execution>
+              
+              <execution>
+                <id>javadoc</id>
+         		<configuration>
+                	<message>JavaDoc gh-pages for ${project.version}</message>  <!-- git commit message -->
+                	<outputDirectory>${project.build.directory}/site/apidocs</outputDirectory> <!-- matches distribution management repository url above -->
+                	<branch>refs/heads/gh-pages</branch>                       <!-- remote branch name -->
+                	<includes><include>**/*</include></includes>
+            	</configuration>                  
+                <goals>
+                  <goal>site</goal>
+                </goals>
+                <phase>deploy</phase>
+              </execution>
+              
+            </executions>
+          </plugin>
+		    
 	      <plugin>
 	        <groupId>org.codehaus.mojo</groupId>
 	        <artifactId>build-helper-maven-plugin</artifactId>
@@ -189,7 +235,13 @@
 	
 	<repositories />
 
-	<distributionManagement />
+	<distributionManagement>
+      <repository>
+        <id>internal.repo</id>
+        <name>Temporary Staging Repository</name>
+        <url>file://${project.build.directory}/mvn-repo</url>
+      </repository>
+	</distributionManagement>
 	
 	<reporting>
 		<outputDirectory>target/site</outputDirectory>
@@ -207,6 +259,9 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9</version>
 				<configuration>
+				    <overview>${basedir}/src/main/javadoc/overview.html</overview>
+				    <stylesheetfile>${basedir}/src/main/javadoc/css/styles.css</stylesheetfile>
+				    <excludePackageNames>com.pusher.client.channel.impl:com.pusher.client.connection.impl:com.pusher.client.connection.websocket</excludePackageNames>
 					<groups>
 						<group>
 							<title>${project.groupId} ${project.artifactId}</title>
@@ -222,7 +277,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.1.1</version>
+				<version>2.6</version>
 				<configuration>
 					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
 				</configuration>
