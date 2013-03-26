@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="pusher-java-client:jar">
+    <output-path>$PROJECT_DIR$/../sendhub-mobile-client/android/libs</output-path>
+    <root id="archive" name="pusher-java-client.jar">
+      <element id="module-output" name="pusher-java-client" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.2.2/gson-2.2.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
