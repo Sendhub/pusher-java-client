@@ -231,6 +231,13 @@
 	      <version>1.4.11</version>
 	      <scope>test</scope>
 	   </dependency>
+	   <dependency>
+	      <groupId>de.tavendo</groupId>
+	      <artifactId>autobahn-android</artifactId>
+          <version>0.5.2-SNAPSHOT</version>
+	   </dependency>
+
+
 	</dependencies>
 	
 	<repositories />
